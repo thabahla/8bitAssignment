@@ -6,14 +6,19 @@
 package entities;
 
 import java.io.Serializable;
-import java.util.Set;
+import java.util.Collection;
+import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -21,27 +26,49 @@ import javax.persistence.Table;
  */
 @javax.persistence.Entity
 @Table(name = "entity")
+@XmlRootElement
+@NamedQueries({
+    @NamedQuery(name = "Entity.findAll", query = "SELECT e FROM Entity e"),
+    @NamedQuery(name = "Entity.findById", query = "SELECT e FROM Entity e WHERE e.id = :id"),
+    @NamedQuery(name = "Entity.findByName", query = "SELECT e FROM Entity e WHERE e.name = :name"),
+    @NamedQuery(name = "Entity.findByEmail", query = "SELECT e FROM Entity e WHERE e.email = :email")})
 public class Entity implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-    @Column(name = "NAME", nullable = false, length = 10)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    private Integer id;
+    @Basic(optional = false)
+    @Column(name = "name")
     private String name;
-    @Column(name = "EMAIL", nullable = false, length = 10)
-    private String emailAddress;
-    @OneToMany(mappedBy="entity",cascade=CascadeType.PERSIST)
-    private Set<CiC> ciCs;
-    
-    public Long getId() {
-        return id;
+    @Basic(optional = false)
+    @Column(name = "email")
+    private String email;
+    @OneToMany(cascade = CascadeType.MERGE, mappedBy = "entityId")
+    private Collection<Cic> cicCollection;
+
+    public Entity() {
     }
 
-    public void setId(Long id) {
+    public Entity(Integer id) {
         this.id = id;
     }
 
-    
+    public Entity(Integer id, String name, String email) {
+        this.id = id;
+        this.name = name;
+        this.email = email;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public String getName() {
         return name;
     }
@@ -50,21 +77,21 @@ public class Entity implements Serializable {
         this.name = name;
     }
 
-    
-    public String getEmailAddress() {
-        return emailAddress;
+    public String getEmail() {
+        return email;
     }
 
-    public void setEmailAddress(String emailAddress) {
-        this.emailAddress = emailAddress;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public Set<CiC> getCiCs() {
-        return ciCs;
+    @XmlTransient
+    public Collection<Cic> getCicCollection() {
+        return cicCollection;
     }
 
-    public void setCiCs(Set<CiC> ciCs) {
-        this.ciCs = ciCs;
+    public void setCicCollection(Collection<Cic> cicCollection) {
+        this.cicCollection = cicCollection;
     }
 
     @Override
